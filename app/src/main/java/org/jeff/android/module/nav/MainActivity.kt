@@ -1,4 +1,4 @@
-package org.jeff.android
+package org.jeff.android.module.nav
 
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
@@ -10,14 +10,21 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import org.jeff.android.R
 import org.jeff.android.databinding.ActivityMainBinding
+import org.jeff.android.log.JLog
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private const val TAG = "MainActivity"
+    }
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        JLog.d(TAG, "onCreate begin.")
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
@@ -35,6 +42,8 @@ class MainActivity : AppCompatActivity() {
                     .setAnchorView(R.id.fab)
                     .setAction("Action", null).show()
         }
+
+        JLog.d(TAG, "onCreate end.")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

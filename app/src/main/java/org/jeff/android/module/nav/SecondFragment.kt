@@ -1,4 +1,4 @@
-package org.jeff.android
+package org.jeff.android.module.nav
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import org.jeff.android.R
 import org.jeff.android.databinding.FragmentSecondBinding
 
 /**
