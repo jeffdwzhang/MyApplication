@@ -23,6 +23,9 @@ static inline void cpu_relax() {
 #include <sched.h>
 #include "atomic_oper.h"
 
+/**
+ * 自旋锁
+ */
 class SpinLock {
 
 public:

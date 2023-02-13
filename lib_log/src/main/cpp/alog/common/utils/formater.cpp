@@ -20,14 +20,14 @@ void log_formater(const LoggerInfo* _info, const char* _log, PtrBuffer& _log_buf
 
     static int error_count = 0;
     static int error_size = 0;
-//    LOGD("log_formater -> max length:%zu, length:%zu", _log_buffer.MaxLength(), _log_buffer.Length());
-    if (_log_buffer.MaxLength() <= _log_buffer.Length() + 5 * 1024) {
+//    LOGD("log_formater -> max length:%zu, length:%zu", _log_buffer.MaxLength(), _log_buffer.getLength());
+    if (_log_buffer.MaxLength() <= _log_buffer.getLength() + 5 * 1024) {
         ++error_count;
         error_size = (int) strnlen(_log, 1024 * 1024);
 
-        if (_log_buffer.MaxLength() >= _log_buffer.Length() + 128) {
+        if (_log_buffer.MaxLength() >= _log_buffer.getLength() + 128) {
             int ret = snprintf((char *)_log_buffer.PosPtr(), 1024, "[F]log_size <= 5*1024, err(%d, %d)\n", error_count, error_size);
-            _log_buffer.Length(_log_buffer.Pos() + ret, _log_buffer.Length() + ret);
+            _log_buffer.Length(_log_buffer.Pos() + ret, _log_buffer.getLength() + ret);
             _log_buffer.Write("");
 
             error_count = 0;
@@ -41,8 +41,8 @@ void log_formater(const LoggerInfo* _info, const char* _log, PtrBuffer& _log_buf
         // 获取时间戳
         char temp_time[64] = {0};
         if (0 != _info->timeval.tv_sec) {
-            time_t sec = _info->timeval.tv_sec;
-            tm tm = *localtime((const time_t*)&sec);
+            const time_t sec = _info->timeval.tv_sec;
+            tm tm = *localtime(&sec);
 
 #ifdef ANDROID
             snprintf(temp_time, sizeof(temp_time), "%d-%02d-%02d %+.1f %02d:%02d:%02d.%.3ld", 1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday,
@@ -59,13 +59,14 @@ void log_formater(const LoggerInfo* _info, const char* _log, PtrBuffer& _log_buf
                            _log ? levelStrings[_info->level] : levelStrings[kLevelFatal], temp_time,
                            _info->pid, _info->tid, _info->tid == _info->maintid ? "*" : "", _info->tag ? _info->tag : "");
 
-        _log_buffer.Length(_log_buffer.Pos() + ret, _log_buffer.Length() + ret);
+        _log_buffer.Length(_log_buffer.Pos() + ret, _log_buffer.getLength() + ret);
 
     }
 
     if (nullptr != _log) {
 
-        size_t bodyLen = _log_buffer.MaxLength() - _log_buffer.Length() > 130 ? _log_buffer.MaxLength() - _log_buffer.Length() - 130 : 0;
+        size_t bodyLen = _log_buffer.MaxLength() - _log_buffer.getLength() > 130 ? _log_buffer.MaxLength() -
+                                                                                   _log_buffer.getLength() - 130 : 0;
 //        LOGD("log_formater -> bodyLen:%zu", bodyLen);
         bodyLen = bodyLen > 0xFFFFU ? 0xFFFFU : bodyLen;
         bodyLen = strnlen(_log, bodyLen);

@@ -53,7 +53,7 @@ size_t PtrBuffer::Read(void* _pBuffer, size_t _nLen) {
 
 size_t PtrBuffer::Read(void* _pBuffer, size_t _nLen, off_t _nPos) const {
 
-    size_t nRead = Length() - _nPos;
+    size_t nRead = getLength() - _nPos;
     nRead = min(nRead, _nLen);
     memcpy(_pBuffer, PosPtr(), nRead);
     return nRead;
@@ -88,7 +88,7 @@ void PtrBuffer::Seek(off_t _nOffset, TSeek _eOrigin) {
 }
 
 void PtrBuffer::Length(off_t _nPos, size_t _nLength) {
-
+//    LOGD("Length -> pos:%d, length:%d", _nPos, _nLength);
     m_length = m_max_length < _nLength ? m_max_length : _nLength;
     Seek(_nPos, kSeekStart);
 }
@@ -117,7 +117,7 @@ size_t PtrBuffer::PosLength() const {
     return m_length - m_pos;
 }
 
-size_t PtrBuffer::Length() const {
+size_t PtrBuffer::getLength() const {
     return m_length;
 }
 
@@ -126,7 +126,7 @@ size_t PtrBuffer::MaxLength() const {
 }
 
 void PtrBuffer::Attach(void* _pBuffer, size_t _nLen, size_t _maxLen) {
-    LOGD("Attach");
+//    LOGD("Attach");
     Reset();
     m_parray = (unsigned char*)_pBuffer;
     m_length = _nLen;

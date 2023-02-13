@@ -17,11 +17,8 @@ public:
     int Status();
 
 private:
-
-    JavaVM* vm;
-    JNIEnv* env;
-    bool we_attach;
-    int status;
+    JNIEnv* m_env;
+    int m_status;
 };
 
 #endif //ANDROIDAVLEARN_SCOPE_JENV_H

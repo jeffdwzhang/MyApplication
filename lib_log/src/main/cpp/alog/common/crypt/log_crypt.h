@@ -42,7 +42,7 @@ public:
 private:
     uint16_t m_seq;
     uint32_t m_tea_key[4];
-    char m_client_pubkey[64];
+    char m_client_pubkey[64] = {0};
     bool m_is_crypt;
 
 };

@@ -27,7 +27,7 @@ class JLogInitializer private constructor() {
     private var mLogMaxSize = 50 * 1024 * 1024 // 默认最大50M
 
     private var mLogLevel: Int = LogLevel.LEVEL_DEBUG
-    private var mLogMode: Int = APPENDER_MODE_SYNC
+    private var mLogMode: Int = APPENDER_MODE_ASYNC
     private var mLogDir: File? = null
     private var mLogCacheDir: File? = null
     private val mAliveDays = 10

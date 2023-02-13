@@ -10,6 +10,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import androidx.arch.core.executor.TaskExecutor
 import org.jeff.android.R
 import org.jeff.android.databinding.ActivityMainBinding
 import org.jeff.android.log.JLog
@@ -43,6 +44,8 @@ class MainActivity : AppCompatActivity() {
                     .setAction("Action", null).show()
         }
 
+        scheduleTestLog()
+
         JLog.d(TAG, "onCreate end.")
     }
 
@@ -66,5 +69,26 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    private fun scheduleTestLog() {
+        var count = 0
+        Thread {
+            do {
+                JLog.d(TAG, "scheduleTestLog -> count:$count")
+                JLog.d(TAG, "scheduleTestLog -> stack trace:${getStackTrace()}")
+                count++
+                Thread.sleep(1000)
+            } while (true)
+        }.start();
+    }
+
+    fun getStackTrace(): String {
+        var trace = Throwable().stackTrace
+        var builder = java.lang.StringBuilder()
+        for (temp in trace) {
+            builder.append(temp).append('\n')
+        }
+        return builder.toString()
     }
 }

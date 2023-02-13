@@ -4,10 +4,11 @@
 
 #include "log_zstd_buffer.h"
 
-LogZstdBuffer::LogZstdBuffer(void *pbuffer, size_t len, bool isCompress, const char *pubkey,
-                             void *_pbuffer, size_t _len, bool _is_compress,
-                             const char *_pubkey, int level) : LogBaseBuffer(pbuffer, len, isCompress, pubkey) {
+LogZstdBuffer::LogZstdBuffer(void *pbuffer, size_t len, bool isCompress, const char *pubkey, int level)
+                             : LogBaseBuffer(pbuffer, len, isCompress, pubkey) {
+    if (m_is_compress) {
 
+    }
 }
 
 LogZstdBuffer::~LogZstdBuffer() noexcept {

@@ -52,14 +52,14 @@ PtrBuffer& LogBaseBuffer::GetData() {
 }
 
 void LogBaseBuffer::Flush(AutoBuffer& _buffer) {
-    if (m_log_crypt->GetLogLen((char*)m_buffer.Ptr(), m_buffer.Length()) == 0) {
+    if (m_log_crypt->GetLogLen((char*)m_buffer.Ptr(), m_buffer.getLength()) == 0) {
         __Clear();
         return;
     }
 
     __Flush();
-    LOGD("Flush -> buffer length:%zu", m_buffer.Length());
-    _buffer.Write(m_buffer.Ptr(), m_buffer.Length());
+    LOGD("Flush -> buffer length:%zu", m_buffer.getLength());
+    _buffer.Write(m_buffer.Ptr(), m_buffer.getLength());
     __Clear();
 }
 
@@ -78,13 +78,13 @@ bool LogBaseBuffer::Write(const void* _data, size_t _length) {
         return false;
     }
 
-    if (m_buffer.Length() == 0) {
+    if (m_buffer.getLength() == 0) {
         if (!__Reset()) {
             return false;
         }
     }
 
-    size_t before_len = m_buffer.Length();
+    size_t before_len = m_buffer.getLength();
     size_t write_len = _length;
 
     if (m_is_compress) {
@@ -120,23 +120,24 @@ bool LogBaseBuffer::__Reset() {
 }
 
 void LogBaseBuffer::__Flush() {
-    LOGD("flush");
+//    LOGD("flush");
     m_log_crypt->UpdateLogHour((char*)m_buffer.Ptr());
-    m_log_crypt->SetTailerInfo((char*)m_buffer.Ptr() + m_buffer.Length(), __GetMagicEnd());
-    m_buffer.Length(m_buffer.Length() + m_log_crypt->GetTailerLen(), m_buffer.Length() + m_log_crypt->GetTailerLen());
+    m_log_crypt->SetTailerInfo((char*)m_buffer.Ptr() + m_buffer.getLength(), __GetMagicEnd());
+    m_buffer.Length(m_buffer.getLength() + m_log_crypt->GetTailerLen(),
+                    m_buffer.getLength() + m_log_crypt->GetTailerLen());
 }
 
 void LogBaseBuffer::__Clear() {
-    LOGD("__Clear");
+//    LOGD("__Clear");
     memset(m_buffer.Ptr(), 0, m_buffer.MaxLength());
     m_buffer.Length(0,0);
     m_remain_no_crypt_len = 0;
 }
 
 void LogBaseBuffer::__Fix() {
-    LOGD("fix");
+//    LOGD("fix");
     uint32_t raw_log_len = 0;
-    if (m_log_crypt->Fix((char*)m_buffer.Ptr(), m_buffer.Length(), raw_log_len)) {
+    if (m_log_crypt->Fix((char*)m_buffer.Ptr(), m_buffer.getLength(), raw_log_len)) {
         m_buffer.Length(raw_log_len + m_log_crypt->GetHeaderLen(), raw_log_len + m_log_crypt->GetHeaderLen());
     } else {
         m_buffer.Length(0, 0);

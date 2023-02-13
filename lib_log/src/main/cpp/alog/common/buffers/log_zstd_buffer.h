@@ -17,9 +17,7 @@ class LogCrypt;
 class LogZstdBuffer : public LogBaseBuffer {
 
 public:
-    LogZstdBuffer(void *pbuffer, size_t len, bool isCompress, const char *pubkey,
-                  void *_pbuffer, size_t _len, bool _is_compress,
-                  const char *_pubkey, int level);
+    LogZstdBuffer(void *pbuffer, size_t len, bool isCompress, const char *pubkey, int level);
     ~LogZstdBuffer();
 
 public:

@@ -59,7 +59,7 @@ public:
 
     size_t Pos() const;
     size_t PosLength() const;
-    size_t Length() const;
+    size_t getLength() const;
     size_t MaxLength() const;
 
     void Attach(void* _pBuffer, size_t _nLen, size_t _maxLen);

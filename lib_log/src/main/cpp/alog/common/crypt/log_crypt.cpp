@@ -16,6 +16,8 @@
 #define LOG_TAG "LogCrypt"
 #include "LogUtil.h"
 
+#define ALOG_NO_CRYPT
+
 #ifndef ALOG_NO_CRYPT
 #include "uECC.h"
 #endif
@@ -152,9 +154,9 @@ void LogCrypt::UpdateLogHour(char* _data) {
     struct timeval tv;
     gettimeofday(&tv, nullptr);
     time_t sec = tv.tv_sec;
-    struct tm tm_temp = *localtime((const time_t*)sec);
+    struct tm tm_temp = *localtime((const time_t*)&sec);
     char hour = (char)tm_temp.tm_hour;
-    LOGD("UpdateLogHour -> hour:%d", hour);
+//    LOGD("UpdateLogHour -> hour:%d", hour);
     memcpy(_data + GetHeaderLen() - sizeof(uint32_t) - sizeof(char) * 64 - sizeof(char), &hour,sizeof(hour));
 }
 
@@ -162,20 +164,21 @@ uint32_t LogCrypt::GetLogLen(const char *const _data, size_t _len) {
     if (_len < GetHeaderLen()) return 0;
 
     char start = _data[0];
-    LOGD("GetLogLen -> start:%d",start);
+//    LOGD("GetLogLen -> start:%d",start);
     if (!LogMagicNum::MagicStartIsValid(start)) {
+        LOGW("GetLogLen -> not valid start:%d",start);
         return 0;
     }
 
     uint32_t len = 0;
     memcpy(&len, _data + GetHeaderLen() - sizeof(uint32_t) - sizeof(char) * 64, sizeof(len));
-    LOGD("GetLogLen -> len:%d",len);
+//    LOGD("GetLogLen -> len:%d",len);
     return len;
 }
 
 void LogCrypt::UpdateLogLen(char *_data, uint32_t _add_len) {
     uint32_t currentLen = (uint32_t)(GetLogLen(_data, GetHeaderLen()) + _add_len);
-    LOGD("UpdateLogLen -> UpdateLogLen:%d",currentLen);
+//    LOGD("UpdateLogLen -> UpdateLogLen:%d",currentLen);
     memcpy(_data + GetHeaderLen() - sizeof(uint32_t) - sizeof(char)*64, &currentLen, sizeof(currentLen));
 }
 
@@ -220,6 +223,10 @@ void LogCrypt::CryptSyncLog(const char *const _log_data,
 
     // 写入log内容
     memcpy((char *)_out_buff.Ptr() + header_len, _log_data, _inputLen);
+
+#ifndef ALOG_NO_CRYPT
+
+#endif
 }
 
 void LogCrypt::CryptASyncLog(const char *const _log_data,

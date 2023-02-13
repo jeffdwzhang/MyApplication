@@ -16,7 +16,7 @@ buildscript {
         appCompatVersion = '1.6.0'
         constraintLayoutVersion = '2.1.4'
         lifecycleVersion = '2.5.1'
-        materialVersion = '1.7.0'
+        materialVersion = '1.8.0'
         navigationVersion = '2.5.3'
 
         junitVersion = '4.13.2'

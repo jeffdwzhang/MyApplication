@@ -28,7 +28,7 @@
 static const int file_path_len = 1024;
 
 static const int kMaxDumpLength = 4096;
-static const unsigned int kBufferBlockLength = 150 * 1024;
+static const unsigned int kBufferBlockLength = 150 * 1024;  // 150K
 static const long kMinLogAliveTime = 2 * 24 * 60 * 60;    // 2 days in second
 
 static Mutex sg_mutex_dir_attr;
@@ -116,11 +116,11 @@ void ALogAppender::Open(const ALogConfig &_config) {
     LOGD("mmap file path : %s", mmap_file_path);
 
     LOGD("config compress_mode:%d", _config.compress_mode);
-//    LOGD("config public_key:%s", _config.pub_key.c_str());
+    LOGD("config public_key:%s", _config.pub_key.c_str());
     bool use_mmap = false;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, m_mmap_file)) {
         if (_config.compress_mode == kZstd) {
-            m_log_buff = new LogZstdBuffer(nullptr, 0, false, nullptr, m_mmap_file.data(),
+            m_log_buff = new LogZstdBuffer(m_mmap_file.data(),
                                            kBufferBlockLength, false, m_config.pub_key.c_str(),
                                            m_config.compress_level);
         } else {
@@ -132,8 +132,7 @@ void ALogAppender::Open(const ALogConfig &_config) {
         char* buffer = new char[kBufferBlockLength];
 
         if (m_config.compress_mode == kZstd) {
-            m_log_buff = new LogZstdBuffer(nullptr, 0, false, nullptr, buffer, kBufferBlockLength,
-                                           false, m_config.pub_key.c_str(), m_config.compress_level);
+            m_log_buff = new LogZstdBuffer(buffer, kBufferBlockLength,false, m_config.pub_key.c_str(), m_config.compress_level);
         } else {
             m_log_buff = new LogZlibBuffer(buffer, kBufferBlockLength, false, m_config.pub_key.c_str());
         }
@@ -613,11 +612,11 @@ bool ALogAppender::__OpenLogFile(const std::string& _log_dir) {
     }
 
     if (0 != m_last_time && (now_time - m_last_time) > (time_t)((now_tick - m_last_tick) / 1000 + 300)) {
-        struct tm tm_temp = *localtime((const time_t*)m_last_time);
+        struct tm tm_temp = *localtime((const time_t*)&m_last_time);
         char last_time_str[64] = {0};
         strftime(last_time_str, sizeof(last_time_str), "%Y-%m-%d %z %H:%M:%S", &tm_temp);
 
-        tm_temp = *localtime((const time_t*)now_time);
+        tm_temp = *localtime((const time_t*)&now_time);
         char now_time_str[64] = {0};
         strftime(now_time_str, sizeof(last_time_str), "%Y-%m-%d %z %H:%M:%S", &tm_temp);
 
@@ -757,11 +756,13 @@ void ALogAppender::__Log2File(const void* _data, size_t _len, bool _move_file) {
 }
 
 void ALogAppender::__AsyncLogThread() {
-
     while (true) {
 
         ScopedLock lock_buffer(m_mutex_buffer_async);
-        if (nullptr == m_log_buff) break;
+
+        if (nullptr == m_log_buff) {
+            break;
+        }
         AutoBuffer tmp;
         m_log_buff->Flush(tmp);
         lock_buffer.unlock();
@@ -771,7 +772,6 @@ void ALogAppender::__AsyncLogThread() {
         }
 
         if (m_log_close) break;
-
         m_cond_buffer_async.wait(15 * 60 * 1000);
     }
 }
@@ -790,7 +790,7 @@ void ALogAppender::__WriteSync(const LoggerInfo* _info, const char* _log) {
 
     // 先把数据写入到缓冲区
     AutoBuffer tmp_buff;
-    if (!m_log_buff->Write(log.Ptr(), log.Length(), tmp_buff)) {
+    if (!m_log_buff->Write(log.Ptr(), log.getLength(), tmp_buff)) {
         return;
     }
 
@@ -810,21 +810,23 @@ void ALogAppender::__WriteAsync(const LoggerInfo*_info, const char *_log) {
     log_formater(_info, _log, log_buff);
     LOGD("__WriteAsync -> log:%s", temp);
 
-    ScopedLock lock(m_mutex_buffer_async);
+    ScopedLock lock(m_mutex_buffer_async);  // 加锁，避免多线程同时写buffer，导致log混乱
     if (nullptr == m_log_buff) {
         return;
     }
-    if (m_log_buff->GetData().Length() >= kBufferBlockLength * 5/6) {
-        int ret = snprintf(temp, sizeof(temp), "[F]sg_buffer_async_Length() >= BUFFER_BLOCK_LENGTH * 4/5, len:%zu\n", m_log_buff->GetData().Length());
+    if (m_log_buff->GetData().getLength() >= kBufferBlockLength * 5 / 6) {
+        int ret = snprintf(temp, sizeof(temp), "[F]sg_buffer_async_Length() >= BUFFER_BLOCK_LENGTH * 4/5, len:%zu\n",
+                           m_log_buff->GetData().getLength());
         log_buff.Length(ret, ret);
     }
 
-    if (!m_log_buff->Write(log_buff.Ptr(), (unsigned int)log_buff.Length())) {
+    if (!m_log_buff->Write(log_buff.Ptr(), (unsigned int) log_buff.getLength())) {
         return;
     }
 
-    if (m_log_buff->GetData().Length() >= kBufferBlockLength * 1/3
+    if (m_log_buff->GetData().getLength() >= kBufferBlockLength * 1 / 3
     || (nullptr != _info && kLevelFatal == _info->level)) {
+        // buffer长度满了三分之一，也就是缓存的内容超过了50K，就通知异步线程同步写log到文件
         m_cond_buffer_async.notifyAll();
     }
 }

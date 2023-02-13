@@ -154,7 +154,7 @@ public:
         m_runnable_ref->m_is_joined = m_outside_join;
         m_runnable_ref->AddRef();
 
-        int ret = pthread_create(reinterpret_cast<pthread_t *>(&m_runnable_ref->m_tid), &m_attr, start_routine_after, m_runnable_ref);
+        int ret = pthread_create(reinterpret_cast<pthread_t *>(&m_runnable_ref->m_tid), &m_attr, start_routine, m_runnable_ref);
 
         if (_newone) *_newone = true;
 

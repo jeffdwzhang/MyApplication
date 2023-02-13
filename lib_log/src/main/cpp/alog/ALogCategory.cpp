@@ -36,7 +36,6 @@ uintptr_t ALogCategory::GetAppender() {
 }
 
 ALogLevel ALogCategory::GetLevel() {
-    LOGD("GetLevel -> m_level:%d", m_level);
     return m_level;
 }
 
