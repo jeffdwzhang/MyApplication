@@ -65,7 +65,7 @@ public class Log {
         void releaseLogInstance(String namePrefix);
 
 
-        void appenderOpen(int level, int mode, String cacheDir, String logDir, String namePrefix, String pubKey, int cacheDays);
+        void appenderOpen(int level, int mode, String cacheDir, String logDir, String namePrefix, int compressMode, String pubKey, int cacheDays);
 
         void appenderClose();
 
@@ -156,7 +156,7 @@ public class Log {
         }
 
         @Override
-        public void appenderOpen(int level, int mode, String cacheDir, String logDir, String namePrefix, String pubKey, int cacheDays) {
+        public void appenderOpen(int level, int mode, String cacheDir, String logDir, String namePrefix, int compressMode, String pubKey, int cacheDays) {
             this.level = level;
         }
 
@@ -205,9 +205,9 @@ public class Log {
     }
 
 
-    public static void appenderOpen(int level, int mode, String cacheDir, String logDir, String namePrefix, String pubKey, int cacheDays) {
+    public static void appenderOpen(int level, int mode, String cacheDir, String logDir, String namePrefix, int compressMode, String pubKey, int cacheDays) {
         if (logImp != null) {
-            logImp.appenderOpen(level, mode, cacheDir, logDir, namePrefix, pubKey, cacheDays);
+            logImp.appenderOpen(level, mode, cacheDir, logDir, namePrefix, compressMode, pubKey, cacheDays);
         }
     }
 

@@ -14,16 +14,17 @@ class Mutex {
 
 public:
     typedef pthread_mutex_t handle_type;
-    Mutex(bool _recursive = false) : m_magic(), m_mutex(), m_mutexattr() {
+    Mutex(bool _recursive = false)
+        : m_magic(reinterpret_cast<uintptr_t>(this)), m_mutex(), m_mutex_attr() {
 
         // 禁止重复加锁
-        int ret = pthread_mutexattr_init(&m_mutexattr);
+        int ret = pthread_mutexattr_init(&m_mutex_attr);
 
 
-        ret = pthread_mutexattr_settype(&m_mutexattr,
+        ret = pthread_mutexattr_settype(&m_mutex_attr,
                                         _recursive ? PTHREAD_MUTEX_RECURSIVE : PTHREAD_MUTEX_ERRORCHECK);
 
-        ret = pthread_mutex_init(&m_mutex, &m_mutexattr);
+        ret = pthread_mutex_init(&m_mutex, &m_mutex_attr);
 
     }
 
@@ -32,7 +33,7 @@ public:
 
         int ret = pthread_mutex_destroy(&m_mutex);
 
-        ret = pthread_mutexattr_destroy(&m_mutexattr);
+        ret = pthread_mutexattr_destroy(&m_mutex_attr);
     }
 
     bool lock() {
@@ -115,7 +116,7 @@ private:
 private:
     uintptr_t m_magic;  // Dangling pointer will dead lock, so check it!!!
     pthread_mutex_t m_mutex;
-    pthread_mutexattr_t m_mutexattr;
+    pthread_mutexattr_t m_mutex_attr;
 };
 
 #endif //ANDROIDAVLEARN_MUTEX_H

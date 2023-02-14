@@ -6,6 +6,8 @@ import android.os.Environment
 import android.util.Log
 import org.zy.alog.LogConstants.Companion.APPENDER_MODE_ASYNC
 import org.zy.alog.LogConstants.Companion.APPENDER_MODE_SYNC
+import org.zy.alog.LogConstants.Companion.ZLIB_MODE
+import org.zy.alog.LogConstants.Companion.ZSTD_MODE
 import org.zy.alog.LogLevel
 import java.io.File
 
@@ -31,6 +33,7 @@ class JLogInitializer private constructor() {
     private var mLogDir: File? = null
     private var mLogCacheDir: File? = null
     private val mAliveDays = 10
+    private val mCompressMode = ZSTD_MODE
 
     private var packageName: String? = null
     private var mApplication: Application? = null
@@ -81,6 +84,7 @@ class JLogInitializer private constructor() {
             mLogCacheDir?.absolutePath,
             mLogDir?.absolutePath,
             LOG_PREFIX,
+            mCompressMode,
             mAliveDays,
             mLogKey,
             mLogMaxSize

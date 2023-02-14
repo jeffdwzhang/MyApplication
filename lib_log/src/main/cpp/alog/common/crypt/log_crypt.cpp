@@ -164,7 +164,7 @@ uint32_t LogCrypt::GetLogLen(const char *const _data, size_t _len) {
     if (_len < GetHeaderLen()) return 0;
 
     char start = _data[0];
-//    LOGD("GetLogLen -> start:%d",start);
+    LOGD("GetLogLen -> start:%d",start);
     if (!LogMagicNum::MagicStartIsValid(start)) {
         LOGW("GetLogLen -> not valid start:%d",start);
         return 0;
@@ -178,7 +178,7 @@ uint32_t LogCrypt::GetLogLen(const char *const _data, size_t _len) {
 
 void LogCrypt::UpdateLogLen(char *_data, uint32_t _add_len) {
     uint32_t currentLen = (uint32_t)(GetLogLen(_data, GetHeaderLen()) + _add_len);
-//    LOGD("UpdateLogLen -> UpdateLogLen:%d",currentLen);
+    LOGD("UpdateLogLen -> UpdateLogLen:%d",currentLen);
     memcpy(_data + GetHeaderLen() - sizeof(uint32_t) - sizeof(char)*64, &currentLen, sizeof(currentLen));
 }
 

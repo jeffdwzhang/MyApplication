@@ -1,6 +1,7 @@
 package org.jeff.android.module.nav
 
 import android.os.Bundle
+import android.os.SystemClock
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
@@ -14,6 +15,7 @@ import androidx.arch.core.executor.TaskExecutor
 import org.jeff.android.R
 import org.jeff.android.databinding.ActivityMainBinding
 import org.jeff.android.log.JLog
+import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
 
@@ -75,12 +77,12 @@ class MainActivity : AppCompatActivity() {
         var count = 0
         Thread {
             do {
-                JLog.d(TAG, "scheduleTestLog -> count:$count")
+                JLog.d(TAG, "scheduleTestLog -> count:$count, random string:${getRandomString()}")
                 JLog.d(TAG, "scheduleTestLog -> stack trace:${getStackTrace()}")
                 count++
                 Thread.sleep(1000)
             } while (true)
-        }.start();
+        }.start()
     }
 
     fun getStackTrace(): String {
@@ -90,5 +92,15 @@ class MainActivity : AppCompatActivity() {
             builder.append(temp).append('\n')
         }
         return builder.toString()
+    }
+
+    fun getRandomString() : String {
+        val random = Random(System.currentTimeMillis())
+        val builder = java.lang.StringBuilder()
+        for (i in 0 until 200) {
+            builder.append(random.nextLong())
+        }
+        return builder.toString()
+
     }
 }

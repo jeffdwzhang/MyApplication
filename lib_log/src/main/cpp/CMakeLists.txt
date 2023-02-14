@@ -9,6 +9,7 @@ set(SELF_LIB_NAME alog)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/jni
+        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/zstd-1.5.4/lib
         ${CMAKE_CURRENT_SOURCE_DIR}/alog
         ${CMAKE_CURRENT_SOURCE_DIR}/alog/common
         ${CMAKE_CURRENT_SOURCE_DIR}/alog/common/android
@@ -22,6 +23,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 
 file(GLOB SELF_SRC_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/zstd-1.5.4/lib/compress/*.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/zstd-1.5.4/lib/common/*.c
         ${CMAKE_CURRENT_SOURCE_DIR}/alog/*.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/alog/crypt/*.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/alog/common/*.cpp

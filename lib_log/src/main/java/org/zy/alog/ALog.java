@@ -37,7 +37,7 @@ public class ALog implements Log.LogImp {
         }
     }
 
-    public void open(int level, int mode, String cacheDir, String logDir, String namePrefix, String pubKey, int cacheDays) {
+    public void open(int level, int mode, String cacheDir, String logDir, String namePrefix, int compressMode, String pubKey, int cacheDays) {
         if (!sIsLoaded) {
             // 重试一次
             try {
@@ -55,7 +55,7 @@ public class ALog implements Log.LogImp {
         logConfig.logDir = logDir;
         logConfig.namePrefix = namePrefix;
         logConfig.pubKey = pubKey;
-        logConfig.compressMode = ZLIB_MODE;
+        logConfig.compressMode = compressMode;
         logConfig.compressLevel = 0;
         logConfig.cacheDir = cacheDir;
         logConfig.cacheDays = cacheDays;
@@ -113,14 +113,14 @@ public class ALog implements Log.LogImp {
     }
 
     @Override
-    public void appenderOpen(int level, int mode, String cacheDir, String logDir, String namePrefix, String pubKey, int cacheDays) {
+    public void appenderOpen(int level, int mode, String cacheDir, String logDir, String namePrefix, int compressMode, String pubKey, int cacheDays) {
 
         ALogConfig logConfig = new ALogConfig();
         logConfig.level = level;
         logConfig.mode = mode;
         logConfig.logDir = logDir;
         logConfig.namePrefix = namePrefix;
-        logConfig.compressMode = ZLIB_MODE;
+        logConfig.compressMode = compressMode;
         logConfig.pubKey = pubKey;
         logConfig.cacheDir = cacheDir;
         logConfig.cacheDays = cacheDays;

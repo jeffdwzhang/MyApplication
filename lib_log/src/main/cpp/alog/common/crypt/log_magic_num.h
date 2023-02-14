@@ -10,8 +10,8 @@ public:
     LogMagicNum() = delete;
 
     static const char kMagicSyncZlibStart = '\x06';
-    static const char kMagicSyncNoCryptZlibStart ='\x08';
-    static const char kMagicAsyncZlibStart ='\x07';
+    static const char kMagicSyncNoCryptZlibStart ='\x07';
+    static const char kMagicAsyncZlibStart ='\x08';
     static const char kMagicAsyncNoCryptZlibStart ='\x09';
 
     static const char kMagicSyncZstdStart = '\x0A';

@@ -20,12 +20,12 @@ void log_formater(const LoggerInfo* _info, const char* _log, PtrBuffer& _log_buf
 
     static int error_count = 0;
     static int error_size = 0;
-//    LOGD("log_formater -> max length:%zu, length:%zu", _log_buffer.MaxLength(), _log_buffer.getLength());
-    if (_log_buffer.MaxLength() <= _log_buffer.getLength() + 5 * 1024) {
+//    LOGD("log_formater -> max length:%zu, length:%zu", _log_buffer.getMaxLength(), _log_buffer.getLength());
+    if (_log_buffer.getMaxLength() <= _log_buffer.getLength() + 5 * 1024) {
         ++error_count;
         error_size = (int) strnlen(_log, 1024 * 1024);
 
-        if (_log_buffer.MaxLength() >= _log_buffer.getLength() + 128) {
+        if (_log_buffer.getMaxLength() >= _log_buffer.getLength() + 128) {
             int ret = snprintf((char *)_log_buffer.PosPtr(), 1024, "[F]log_size <= 5*1024, err(%d, %d)\n", error_count, error_size);
             _log_buffer.Length(_log_buffer.Pos() + ret, _log_buffer.getLength() + ret);
             _log_buffer.Write("");
@@ -65,7 +65,8 @@ void log_formater(const LoggerInfo* _info, const char* _log, PtrBuffer& _log_buf
 
     if (nullptr != _log) {
 
-        size_t bodyLen = _log_buffer.MaxLength() - _log_buffer.getLength() > 130 ? _log_buffer.MaxLength() -
+        size_t bodyLen = _log_buffer.getMaxLength() - _log_buffer.getLength() > 130 ?
+                         _log_buffer.getMaxLength() -
                                                                                    _log_buffer.getLength() - 130 : 0;
 //        LOGD("log_formater -> bodyLen:%zu", bodyLen);
         bodyLen = bodyLen > 0xFFFFU ? 0xFFFFU : bodyLen;

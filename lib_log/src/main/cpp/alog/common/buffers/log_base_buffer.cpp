@@ -11,6 +11,7 @@
 #include <cstring>
 #include <errno.h>
 #include <cassert>
+#include <zlib.h>
 #include "crypt/log_magic_num.h"
 
 #define LOG_TAG "LogBaseBuffer"
@@ -32,7 +33,38 @@ bool LogBaseBuffer::GetPeriodLogs(const char *_log_path,
                                   unsigned long &_begin_pos,
                                   unsigned long &_end_pos,
                                   std::string &_err_msg) {
-    // TODO
+
+    char msg[1024] = {0};
+    char magic_end = LogMagicNum::kMagicEnd;
+
+    if (nullptr == _log_path || _end_hour <= _begin_hour) {
+        snprintf(msg, sizeof(msg), "_log_path is null or end hour(%d) <= begin hour(%d)", _end_hour, _begin_hour);
+        _err_msg += msg;
+        return false;
+    }
+
+    FILE *file = fopen(_log_path, "rb");
+    if (nullptr == file) {
+        snprintf(msg, sizeof(msg), "open file fail:%s", strerror(errno));
+        _err_msg += msg;
+        return false;
+    }
+
+    if (0 != fseek(file, 0, SEEK_END)) {
+        snprintf(msg, sizeof(msg), "file seek fail:%s", strerror(ferror(file)));
+        _err_msg += msg;
+        fclose(file);
+        return false;
+    }
+
+    long file_size = ftell(file);
+    if (0 != fseek(file, 0, SEEK_SET)) {
+        snprintf(msg, sizeof(msg), "file seek fail:%s", strerror(ferror(file)));
+        _err_msg += msg;
+        fclose(file);
+        return false;
+    }
+
 
 
 }
@@ -88,7 +120,13 @@ bool LogBaseBuffer::Write(const void* _data, size_t _length) {
     size_t write_len = _length;
 
     if (m_is_compress) {
+        uInt avail_out = (uInt)(m_buffer.getMaxLength() - m_buffer.getLength());
 
+        write_len = Compress(_data, _length, m_buffer.PosPtr(), avail_out);
+        LOGD("Write -> after compress:%zu", write_len);
+        if (write_len == (size_t)-1) {
+            return false;
+        }
     } else {
         m_buffer.Write(_data, _length);
     }
@@ -111,8 +149,9 @@ bool LogBaseBuffer::Write(const void* _data, size_t _length) {
 }
 
 bool LogBaseBuffer::__Reset() {
+    LOGD("__Reset -> __Clear");
     __Clear();
-
+    LOGD("__Reset -> SetHeaderInfo");
     m_log_crypt->SetHeaderInfo((char*)m_buffer.Ptr(), m_is_compress, __GetMagicAsyncStart());
     m_buffer.Length(m_log_crypt->GetHeaderLen(), m_log_crypt->GetHeaderLen());
 
@@ -122,14 +161,15 @@ bool LogBaseBuffer::__Reset() {
 void LogBaseBuffer::__Flush() {
 //    LOGD("flush");
     m_log_crypt->UpdateLogHour((char*)m_buffer.Ptr());
+
     m_log_crypt->SetTailerInfo((char*)m_buffer.Ptr() + m_buffer.getLength(), __GetMagicEnd());
     m_buffer.Length(m_buffer.getLength() + m_log_crypt->GetTailerLen(),
                     m_buffer.getLength() + m_log_crypt->GetTailerLen());
 }
 
 void LogBaseBuffer::__Clear() {
-//    LOGD("__Clear");
-    memset(m_buffer.Ptr(), 0, m_buffer.MaxLength());
+    LOGD("__Clear");
+    memset(m_buffer.Ptr(), 0, m_buffer.getMaxLength());
     m_buffer.Length(0,0);
     m_remain_no_crypt_len = 0;
 }

@@ -121,10 +121,10 @@ void ALogAppender::Open(const ALogConfig &_config) {
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, m_mmap_file)) {
         if (_config.compress_mode == kZstd) {
             m_log_buff = new LogZstdBuffer(m_mmap_file.data(),
-                                           kBufferBlockLength, false, m_config.pub_key.c_str(),
+                                           kBufferBlockLength, true, m_config.pub_key.c_str(),
                                            m_config.compress_level);
         } else {
-            m_log_buff = new LogZlibBuffer(m_mmap_file.data(), kBufferBlockLength, false, m_config.pub_key.c_str());
+            m_log_buff = new LogZlibBuffer(m_mmap_file.data(), kBufferBlockLength, true, m_config.pub_key.c_str());
         }
         use_mmap = true;
     } else {
@@ -132,9 +132,9 @@ void ALogAppender::Open(const ALogConfig &_config) {
         char* buffer = new char[kBufferBlockLength];
 
         if (m_config.compress_mode == kZstd) {
-            m_log_buff = new LogZstdBuffer(buffer, kBufferBlockLength,false, m_config.pub_key.c_str(), m_config.compress_level);
+            m_log_buff = new LogZstdBuffer(buffer, kBufferBlockLength, true, m_config.pub_key.c_str(), m_config.compress_level);
         } else {
-            m_log_buff = new LogZlibBuffer(buffer, kBufferBlockLength, false, m_config.pub_key.c_str());
+            m_log_buff = new LogZlibBuffer(buffer, kBufferBlockLength, true, m_config.pub_key.c_str());
         }
         use_mmap = false;
     }
@@ -759,13 +759,14 @@ void ALogAppender::__AsyncLogThread() {
     while (true) {
 
         ScopedLock lock_buffer(m_mutex_buffer_async);
-
         if (nullptr == m_log_buff) {
             break;
         }
         AutoBuffer tmp;
         m_log_buff->Flush(tmp);
+        LOGD("__AsyncLogThread -> after flush, tmp length:%zu", tmp.Length());
         lock_buffer.unlock();
+
 
         if (nullptr != tmp.Ptr()) {
             __Log2File(tmp.Ptr(), tmp.Length(), true);
@@ -820,6 +821,7 @@ void ALogAppender::__WriteAsync(const LoggerInfo*_info, const char *_log) {
         log_buff.Length(ret, ret);
     }
 
+    LOGD("__WriteAsync -> write to log buf, length:%zu", log_buff.getLength());
     if (!m_log_buff->Write(log_buff.Ptr(), (unsigned int) log_buff.getLength())) {
         return;
     }
@@ -829,6 +831,7 @@ void ALogAppender::__WriteAsync(const LoggerInfo*_info, const char *_log) {
         // buffer长度满了三分之一，也就是缓存的内容超过了50K，就通知异步线程同步写log到文件
         m_cond_buffer_async.notifyAll();
     }
+    LOGD("__WriteAsync -> write log finish.");
 }
 
 void ALogAppender::__DelTimeoutFile(const std::string& _log_path) {

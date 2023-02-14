@@ -12,6 +12,8 @@
 #include "ptr_buffer.h"
 #include "autobuffer.h"
 
+#include "zstd.h"
+
 class LogCrypt;
 
 class LogZstdBuffer : public LogBaseBuffer {
@@ -30,7 +32,7 @@ private:
     char __GetMagicAsyncStart();
 
 private:
-
+    ZSTD_CCtx* m_cctx;
 };
 
 #endif //ANDROIDAVLEARN_LOG_ZSTD_BUFFER_H

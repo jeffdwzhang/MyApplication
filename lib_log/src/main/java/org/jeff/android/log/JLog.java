@@ -22,11 +22,11 @@ public class JLog {
      * @param pubKey
      * @param maxSize
      */
-    public static void initLog(int level, int mode, String cacheDir, String logDir, String namePrefix, int cacheDays, String pubKey, int maxSize) {
+    public static void initLog(int level, int mode, String cacheDir, String logDir, String namePrefix, int compressMode, int cacheDays, String pubKey, int maxSize) {
         // log实现采用Alog实例
         ALog alog = new ALog();
         // 开启log
-        alog.appenderOpen(level, mode, cacheDir, logDir, namePrefix, pubKey, cacheDays);
+        alog.appenderOpen(level, mode, cacheDir, logDir, namePrefix, compressMode, pubKey, cacheDays);
         org.zy.alog.Log.setLogImp(alog);
         org.zy.alog.Log.setConsoleLogOpen(false);
         org.zy.alog.Log.setMaxSize(maxSize);

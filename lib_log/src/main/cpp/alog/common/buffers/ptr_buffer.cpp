@@ -88,7 +88,7 @@ void PtrBuffer::Seek(off_t _nOffset, TSeek _eOrigin) {
 }
 
 void PtrBuffer::Length(off_t _nPos, size_t _nLength) {
-//    LOGD("Length -> pos:%d, length:%d", _nPos, _nLength);
+    LOGD("Length -> pos:%ld, length:%zu", _nPos, _nLength);
     m_length = m_max_length < _nLength ? m_max_length : _nLength;
     Seek(_nPos, kSeekStart);
 }
@@ -121,7 +121,7 @@ size_t PtrBuffer::getLength() const {
     return m_length;
 }
 
-size_t PtrBuffer::MaxLength() const {
+size_t PtrBuffer::getMaxLength() const {
     return m_max_length;
 }
 

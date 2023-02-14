@@ -42,7 +42,7 @@ size_t LogZlibBuffer::Compress(const void *src, size_t _inLen, void *dst, size_t
 }
 
 void LogZlibBuffer::Flush(AutoBuffer& _buf) {
-    LOGD("flush");
+//    LOGD("flush");
     if (m_is_compress && Z_NULL != m_z_stream.state) {
         deflateEnd(&m_z_stream);
     }
