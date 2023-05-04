@@ -58,22 +58,24 @@ void LogZstdBuffer::Flush(AutoBuffer& _buf) {
     if (m_is_compress && m_cctx != nullptr) {
         // 给一个压缩结束的标志
         ZSTD_inBuffer input = {nullptr, 0, 0};
-        size_t ret = 0;
-        do {
-
-            size_t avail_out = m_buffer.getMaxLength() - m_buffer.getLength();
-            ZSTD_outBuffer output = {m_buffer.PosPtr(), avail_out, 0};
-            size_t beforeLen = m_buffer.Pos();
-            ret = ZSTD_compressStream2(m_cctx, &output, &input, ZSTD_e_end);
-            if (ret != 0 && ZSTD_isError(ret)) {
-                LOGD("Flush -> ret:%d, error name:%s", ret, ZSTD_getErrorName(ret));
-            }
-
-            m_buffer.Length(beforeLen + output.pos, beforeLen + output.pos);
-
-            m_log_crypt->UpdateLogLen((char*)m_buffer.Ptr(), output.pos);
-
-        } while (ret != 0);
+        ZSTD_outBuffer output = {nullptr, 0, 0};
+        ZSTD_compressStream2(m_cctx, &output, &input, ZSTD_e_end);
+//        size_t ret = 0;
+//        do {
+//
+//            size_t avail_out = m_buffer.getMaxLength() - m_buffer.getLength();
+//            ZSTD_outBuffer output = {m_buffer.PosPtr(), avail_out, 0};
+//            size_t beforeLen = m_buffer.Pos();
+//            ret = ZSTD_compressStream2(m_cctx, &output, &input, ZSTD_e_end);
+//            if (ret != 0 && ZSTD_isError(ret)) {
+//                LOGD("Flush -> ret:%d, error name:%s", ret, ZSTD_getErrorName(ret));
+//            }
+//
+//            m_buffer.Length(beforeLen + output.pos, beforeLen + output.pos);
+//
+//            m_log_crypt->UpdateLogLen((char*)m_buffer.Ptr(), output.pos);
+//
+//        } while (ret != 0);
     }
     // 调用父类的Flush方法
     LogBaseBuffer::Flush(_buf);
